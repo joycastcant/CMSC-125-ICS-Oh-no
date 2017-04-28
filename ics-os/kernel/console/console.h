@@ -56,4 +56,7 @@ int console_execute(const char *str);
 int console_new();
 void console_main();
 
+// yaaaay 
+int history_flag = 0;
+
 #endif

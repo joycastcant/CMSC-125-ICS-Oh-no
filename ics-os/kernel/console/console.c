@@ -26,6 +26,7 @@
 */
 
 #include "console.h"
+#include "history.h"
   
 /*A console mode get string function terminates
 upon receving \r */
@@ -432,7 +433,7 @@ void console_ls(int style, int sortmethod)
         qsort(buffer,totalfiles,sizeof(vfs_node),console_ls_sortsize);
         
     textbackground(BLUE);
-    textcolor(WHITE);
+    textcolor(MAGENTA);
     
     if (style==1)
         printf("%-25s %10s %14s %14s\n","Filename","Size(bytes)","Attribute","Date Modified");
@@ -454,7 +455,7 @@ void console_ls(int style, int sortmethod)
                     if (buffer[i].attb&FILE_OEXE)
                         textcolor(YELLOW);
                     else
-                    textcolor(WHITE);
+                    textcolor(MAGENTA);
 
             strcpy(fname,buffer[i].name);
             fname[24]=0;
@@ -476,13 +477,13 @@ void console_ls(int style, int sortmethod)
                      if (buffer[i].attb&FILE_OEXE)
                         textcolor(YELLOW);
                     else
-                    textcolor(WHITE);
+                    textcolor(MAGENTA);
                     
             strcpy(fname,buffer[i].name);
             fname[24]=0;
             printf("%-25s ",fname);
             
-            textcolor(WHITE);
+            textcolor(MAGENTA);
             printf("%10d %14s %14s\n",buffer[i].size,
             vfs_attbstr(&buffer[i],temp),datetostr(&buffer[i].date_modified,
                        mdatestr));
@@ -502,7 +503,7 @@ void console_ls(int style, int sortmethod)
         };       
     };
     
-    textcolor(WHITE);
+    textcolor(MAGENTA);
     printf("\nTotal Files: %d  Total Size: %d bytes\n", totalfiles, totalbytes);
     free(buffer);
     
@@ -515,6 +516,7 @@ void console_ls(int style, int sortmethod)
 */
 int console_execute(const char *str)
 {
+
   char temp[512];
   char *u;
   int command_length = 0;
@@ -525,7 +527,7 @@ int console_execute(const char *str)
   u=strtok(temp," ");
   
   if (u==0) return;
-  
+  //call appendHistory(u);
   command_length = strlen(u);    
     
     //check if a pathcut command was executed
@@ -933,9 +935,27 @@ int console_execute(const char *str)
     if (strcmp(u,"demo_graphics")==0)
               {
                demo_graphics();
-              }
-    
+              }    
               else
+    if (strcmp(u,"history")==0)
+                {
+                  // printf("Sup\n");
+                  u=strtok(0," ");
+                 
+                 if (u!=0)
+                 {
+                     do {           
+                     if (strcmp(u,"-t")==0) printHeadHistory();
+                     if (strcmp(u,"-e")==0) printTailHistory();
+                     if (strcmp(u,"-h")==0) printHistoryHelp();
+                     u=strtok(0," ");
+                     } while (u!=0);
+                 }else
+                 {
+                     printAllHistory();                      
+                 };
+                }
+                else
     if (u[0]=='$')
              {
                int i, devid;
@@ -980,6 +1000,7 @@ int console_new()
          char consolename[255];
          sprintf(consolename,"dex32_console(%d)",console_first);    
          return createkthread((void*)console,consolename,200000);
+         startHistory();            // creates LL and starts listing commands
 };
 
 void console_main()
@@ -1013,13 +1034,13 @@ void console_main()
     
     console_first++;  
     do {
-    textcolor(WHITE);
+    textcolor(MAGENTA);
     textbackground(BLACK);
     prompt_parser(console_fmt,console_prompt);
     
     textcolor(LIGHTBLUE);
     printf("%s",console_prompt);
-    textcolor(WHITE);
+    textcolor(MAGENTA);
     
     if (strcmp(s,"@@")!=0&&
         strcmp(s,"!!")!=0)
