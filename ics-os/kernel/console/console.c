@@ -27,6 +27,11 @@
 
 #include "console.h"
 #include "history.h"
+
+
+command * head;
+command * tail;
+command * curr;
   
 /*A console mode get string function terminates
 upon receving \r */
@@ -528,6 +533,8 @@ int console_execute(const char *str)
   
   if (u==0) return;
   //call appendHistory(u);
+  appendHistory(&tail, u);
+
   command_length = strlen(u);    
     
     //check if a pathcut command was executed
@@ -650,7 +657,7 @@ int console_execute(const char *str)
                 }
                 else  
     if (strcmp(u,"ver")==0) {
-		printf("%s",dex32_versionstring);
+    printf("%s",dex32_versionstring);
                 }
                 else
     if (strcmp(u,"cpuid")==0)
@@ -889,7 +896,7 @@ int console_execute(const char *str)
              }
              else
     if (strcmp(u,"lsext")==0)
-    			 {
+           {
               extension_list();
              }
              else
@@ -923,13 +930,13 @@ int console_execute(const char *str)
              }
              else         
     if (strcmp(u,"unload")==0)
-    			 {
+           {
              u=strtok(0," ");
              if (u!=0)
-             	{
-	             if (module_unload_library(u)==-1)
+              {
+               if (module_unload_library(u)==-1)
                 printf("Error unloading library");
-   	         };
+             };
              }
              else
     if (strcmp(u,"demo_graphics")==0)
@@ -952,7 +959,7 @@ int console_execute(const char *str)
                      } while (u!=0);
                  }else
                  {
-                     printAllHistory();                      
+                     printAllHistory(head);              
                  };
                 }
                 else
@@ -1000,7 +1007,6 @@ int console_new()
          char consolename[255];
          sprintf(consolename,"dex32_console(%d)",console_first);    
          return createkthread((void*)console,consolename,200000);
-         startHistory();            // creates LL and starts listing commands
 };
 
 void console_main()
@@ -1031,8 +1037,8 @@ void console_main()
     
     
     if (console_first == 0) script_load("/icsos/autoexec.bat");
-    
     console_first++;  
+    startHistory(&head, &tail, &curr);            // creates LL and starts listing commands
     do {
     textcolor(MAGENTA);
     textbackground(BLACK);
