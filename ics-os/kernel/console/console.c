@@ -523,17 +523,19 @@ int console_execute(const char *str)
 {
 
   char temp[512];
+  char tempo[512];
   char *u;
   int command_length = 0;
   signed char mouse_x,mouse_y,last_mouse_x=0,last_mouse_y=0;
   
   //make a copy so that strtok wouldn't ruin str
   strcpy(temp,str);
+  strcpy(tempo,str);
   u=strtok(temp," ");
   
   if (u==0) return;
   //call appendHistory(u);
-  appendHistory(&tail, u);
+  appendHistory(&head, &tail, tempo);
 
   command_length = strlen(u);    
     
@@ -952,8 +954,8 @@ int console_execute(const char *str)
                  if (u!=0)
                  {
                      do {           
-                     if (strcmp(u,"-t")==0) printHeadHistory();
-                     if (strcmp(u,"-e")==0) printTailHistory();
+                     if (strcmp(u,"-t")==0) printHeadHistory(head);
+                     if (strcmp(u,"-e")==0) printTailHistory(tail);
                      if (strcmp(u,"-h")==0) printHistoryHelp();
                      u=strtok(0," ");
                      } while (u!=0);
