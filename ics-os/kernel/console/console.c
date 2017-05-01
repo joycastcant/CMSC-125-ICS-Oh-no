@@ -1,11 +1,11 @@
-/* 
+/*
    ==========================================================================
    Console.c
    Author: Joseph Emmanuel Dayo
    Date updated:December 6, 2002
    Description: A kernel mode console that is used for debugging the kernel
    and testing new kernel features.
-                
+
     DEX educational extensible operating system 1.0 Beta
     Copyright (C) 2004  Joseph Emmanuel DL Dayo
 
@@ -21,7 +21,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
-    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA. 
+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
    ==========================================================================
 */
 
@@ -29,10 +29,6 @@
 #include "history.h"
 
 
-command * head;
-command * tail;
-command * curr;
-  
 /*A console mode get string function terminates
 upon receving \r */
 void getstring(char *buf,DEX32_DDL_INFO *dev)
@@ -55,7 +51,7 @@ void getstring(char *buf,DEX32_DDL_INFO *dev)
               if (Dex32GetY(dev)>0) Dex32SetY(dev,Dex32GetY(dev)-1);
              }
              else
-        Dex32SetX(dev,Dex32GetX(dev)-1);     
+        Dex32SetX(dev,Dex32GetX(dev)-1);
         Dex32PutChar(dev,Dex32GetX(dev),Dex32GetY(dev),' ',Dex32GetAttb(dev));
         };
        }
@@ -66,7 +62,7 @@ void getstring(char *buf,DEX32_DDL_INFO *dev)
          {
             Dex32PutChar(dev,Dex32GetX(dev),Dex32GetY(dev),buf[i]=c,Dex32GetAttb(dev));
             i++;
-            Dex32SetX(dev,Dex32GetX(dev)+1);     
+            Dex32SetX(dev,Dex32GetX(dev)+1);
             if (Dex32GetX(dev)>79) {Dex32SetX(dev,0);
             Dex32NextLn(dev);};
          };
@@ -75,7 +71,7 @@ void getstring(char *buf,DEX32_DDL_INFO *dev)
      Dex32PutChar(dev,Dex32GetX(dev),Dex32GetY(dev),' ',Dex32GetAttb(dev));
      update_cursor(Dex32GetY(dev),Dex32GetX(dev));
     } while (c!='\r');
-    
+
     Dex32SetX(dev,0);
     Dex32NextLn(dev);
     buf[i]=0;
@@ -113,31 +109,31 @@ int user_fork()
     #ifdef DEBUG_FORK
     printf("user_fork called\n");
     #endif
-    
+
     //enable interrupts since we want the process dispatcher to take control
     storeflags(&flags);
     startints();
-   
+
     hdl = pd_forkmodule(current_process->processid);
-    
-    taskswitch();  
+
+    taskswitch();
     id = pd_dispatched(hdl);
     //while (!(id=pd_dispatched(hdl)))
     //  ;
-    
+
     if (curval != current_process->processid) //this is the child
       {
         //If this is the child process, the processid when this function
         //was called is not equal to the current processid.
         retval = 0;
       };
-      
+
     if (curval == current_process->processid) // this is the parent
       {
         pd_ok(hdl);
         retval = id;
       };
-      
+
       restoreflags(flags);
       return retval;
 };
@@ -148,7 +144,7 @@ int user_execp(char *fname,DWORD mode,char *params)
   char *buf;
   vfs_stat filestat;
   file_PCB *f=openfilex(fname,0);
-  
+
   if (f!=0)
   {
       fstat(f,&filestat);
@@ -163,7 +159,7 @@ int user_execp(char *fname,DWORD mode,char *params)
         printf("execp(): adding module..\n");
         #endif
         int hdl= addmodule(fname,buf,userspace,mode,params,showpath(temp),getprocessid());
-        
+
         #ifdef DEBUG_USER_PROCESS
         printf("execp(): done.\n");
         #endif
@@ -172,7 +168,7 @@ int user_execp(char *fname,DWORD mode,char *params)
         #ifdef DEBUG-USER_PROCESS
         printf("execp(): parent waiting for child to finish\n");
         #endif
-        
+
         while (!(id=pd_ok(hdl))) ; //process already running?
         fg_setmykeyboard(id);
         dex32_waitpid(id,0);
@@ -199,9 +195,9 @@ int exec(char *fname,DWORD mode,char *params)
      vfs_stat fileinfo;
      fstat(f,&fileinfo);
      size = fileinfo.st_size;
-     
+
      buf=(char*)malloc(size+511);
-     
+
      if (fread(buf,size,1,f)==size)
      id=dex32_loader(fname,buf,userspace,mode,params,showpath(temp),getprocessid());
 
@@ -231,7 +227,7 @@ int user_exec(char *fname,DWORD mode,char *params)
      fread(buf,size,1,f);
      hdl = addmodule(fname,buf,userspace,mode,params,showpath(temp),getprocessid());
      while (!pd_ok(hdl)) ;
-     
+
      free(buf);
      fclose(f);
      return id;
@@ -253,18 +249,18 @@ int loadDLL(char *name,char *p)
  //get filesize and allocate memory
  fsize= filestat.st_size;
  buf=(char*)malloc(fsize);
- 
- //load the file from the disk 
+
+ //load the file from the disk
  fread(buf,fsize,1,handle);
- 
+
  /*Tell the process dispatcher to map the file into memory and
    create data structures necessary for managing dynamic libraries*/
-   
+
  hdl = addmodule(name,buf,lmodeproc,PE_USERDLL,p,0,getprocessid());
- 
+
  //wait until the library has been loaded before we continue since addmodule returns immediately
  while (!(libid = pd_ok(hdl)));
- 
+
  //done!
  free(buf);
 
@@ -303,11 +299,11 @@ int console_showfile(char *s,int wait)
    fread(buf,size,1,handle);
     for (i=0;i<size;i++)
        {
-           if (buf[i]!='\r') 
+           if (buf[i]!='\r')
            printf("%c",buf[i]);
 
-           if (myddl->lines%25==0)  
-              { 
+           if (myddl->lines%25==0)
+              {
                  char c;
                  printf("\nPress any key to continue, 'q' to quit\n");
                  c=getch();
@@ -327,7 +323,7 @@ dex32_commit(0xB8000,1,current_process->pagedirloc,PG_WR)
 
 void console()
  {
-   
+
     console_main();
  };
 
@@ -380,15 +376,15 @@ void prompt_parser(const char *promptstr,char *prompt)
     };
 
   };
-  
+
 
 
 /* ==================================================================
    console_ls(int style):
-   
+
    *list the contents of the current directory to the screen
-    style = 1      : list format 
-    sty;e = others : wide format  
+    style = 1      : list format
+    sty;e = others : wide format
 
 */
 
@@ -408,7 +404,7 @@ int console_ls_sortname(vfs_node *n1,vfs_node *n2)
 
     if ( !(n1->attb & FILE_DIRECTORY) && (n2->attb & FILE_DIRECTORY))
         return 1;
-        
+
     return strsort(n1->name,n2->name);
 };
 
@@ -421,36 +417,36 @@ void console_ls(int style, int sortmethod)
     int totalbytes=0,freebytes=0;
     int totalfiles=0,i;
     char cdatestr[20],mdatestr[20],temp[20];
-    
+
     //obtain total number of files
     totalfiles = vfs_listdir(dptr,0,0);
-    
+
     buffer = (vfs_node*) malloc( totalfiles * sizeof(vfs_node));
 
     //Place the list of files obtained from the VFS into a buffer
-    totalfiles = vfs_listdir(dptr,buffer,totalfiles* sizeof(vfs_node));     
-    
+    totalfiles = vfs_listdir(dptr,buffer,totalfiles* sizeof(vfs_node));
+
     //Sort the list
     if (sortmethod == SORT_NAME)
         qsort(buffer,totalfiles,sizeof(vfs_node),console_ls_sortname);
     else
     if (sortmethod == SORT_SIZE)
         qsort(buffer,totalfiles,sizeof(vfs_node),console_ls_sortsize);
-        
+
     textbackground(BLUE);
     textcolor(MAGENTA);
-    
+
     if (style==1)
         printf("%-25s %10s %14s %14s\n","Filename","Size(bytes)","Attribute","Date Modified");
-        
+
     textbackground(BLACK);
 
     for (i=0; i < totalfiles; i++)
     {
-        char fname[255];   
+        char fname[255];
         if (style==0) //wide view style
         {
-            
+
             if (buffer[i].attb&FILE_MOUNT)
                 textcolor(LIGHTBLUE);
             else
@@ -466,7 +462,7 @@ void console_ls(int style, int sortmethod)
             fname[24]=0;
             printf("%-25s ",fname);
             totalbytes+=buffer[i].size;
-            
+
             if ( (i+1)%3==0 && (i+1 < totalfiles) ) printf("\n");
 
         };
@@ -483,21 +479,21 @@ void console_ls(int style, int sortmethod)
                         textcolor(YELLOW);
                     else
                     textcolor(MAGENTA);
-                    
+
             strcpy(fname,buffer[i].name);
             fname[24]=0;
             printf("%-25s ",fname);
-            
+
             textcolor(MAGENTA);
             printf("%10d %14s %14s\n",buffer[i].size,
             vfs_attbstr(&buffer[i],temp),datetostr(&buffer[i].date_modified,
                        mdatestr));
-                       
+
             totalbytes+=buffer[i].size;
 
 
             //try to make it fit the screen
-            if ((i+1) % 23==0) 
+            if ((i+1) % 23==0)
             {
                 char c;
                 printf("Press Q to quit or any other key to continue ...");
@@ -505,13 +501,13 @@ void console_ls(int style, int sortmethod)
                 printf("\n");
                 if (c=='q'||c=='Q') break;
             };
-        };       
+        };
     };
-    
+
     textcolor(MAGENTA);
     printf("\nTotal Files: %d  Total Size: %d bytes\n", totalfiles, totalbytes);
     free(buffer);
-    
+
 };
 
 /* ==================================================================
@@ -527,24 +523,24 @@ int console_execute(const char *str)
   char *u;
   int command_length = 0;
   signed char mouse_x,mouse_y,last_mouse_x=0,last_mouse_y=0;
-  
+
   //make a copy so that strtok wouldn't ruin str
   strcpy(temp,str);
   strcpy(tempo,str);
   u=strtok(temp," ");
-  
+
   if (u==0) return;
   //call appendHistory(u);
   appendHistory(&head, &tail, tempo);
 
-  command_length = strlen(u);    
-    
+  command_length = strlen(u);
+
     //check if a pathcut command was executed
-    if (u[command_length - 1] == ':') 
+    if (u[command_length - 1] == ':')
                 {
                     char temp[512];
-                    sprintf(temp,"cd %s",u);            
-                    console_execute(temp); 
+                    sprintf(temp,"cd %s",u);
+                    console_execute(temp);
                 }
                 else
     if (strcmp(u,"fgman")==0)
@@ -562,7 +558,7 @@ int console_execute(const char *str)
                       get_mouse_pos(&mouse_x,&mouse_y);
                     }
                     last_mouse_x=mouse_x;
-                    last_mouse_y=mouse_y; 
+                    last_mouse_y=mouse_y;
                   }
                 }
                 else
@@ -573,7 +569,7 @@ int console_execute(const char *str)
                 else
     if (strcmp(u,"procinfo")==0)
                 {
-                   int pid;             
+                   int pid;
                    u=strtok(0," ");
                    if (u!=0)
                    {
@@ -604,7 +600,7 @@ int console_execute(const char *str)
                           if (vfs_addpathcut(u2,u3)==-1)
                             printf("Invalid Pathcut specified\n");
                               else
-                            printf("pathcut added.\n");                                
+                            printf("pathcut added.\n");
                       }
                    else
                       printf("Wrong number of parameters specified\n");
@@ -615,13 +611,13 @@ int console_execute(const char *str)
                 char *u2 = strtok(0," ");
                 if (u2!=0)
                     {
-                        char c;                
+                        char c;
                         printf("*Warning!* This will delete all files and subdirectories!\n");
                         printf("Do you wish to continue? (y/n):");
                         c = getch();
                         if (c == 'y')
                            {
-                              printf("please wait..\n");                        
+                              printf("please wait..\n");
                               if (rmdir(u2)!=-1)
                                 printf("Remove directory successful!\n");
                               else
@@ -631,7 +627,7 @@ int console_execute(const char *str)
                            printf("Remove directory cancelled.\n");
                     }
                    else
-                   printf("Invalid parameter.\n"); 
+                   printf("Invalid parameter.\n");
                 }
                 else
     if (strcmp(u,"rempcut")==0)
@@ -643,21 +639,21 @@ int console_execute(const char *str)
                      if (vfs_removepathcut(u2)==-1)
                         printf("Invalid Pathcut or pathcut not found\n");
                            else
-                        printf("pathcut removed.\n");   
-                     
+                        printf("pathcut removed.\n");
+
                      }
                    else
                      printf("Wrong number of parameters specified\n");
-                     
+
                 }
                 else
     if (strcmp(u,"newconsole")==0)
                 {
-                //create a new console         
+                //create a new console
                    console_new();
-                   printf("new console thread created.\n");                   
+                   printf("new console thread created.\n");
                 }
-                else  
+                else
     if (strcmp(u,"ver")==0) {
     printf("%s",dex32_versionstring);
                 }
@@ -668,30 +664,30 @@ int console_execute(const char *str)
                    hardware_getcpuinfo(&mycpu);
                    hardware_printinfo(&mycpu);
                 }
-                else            
+                else
     if (strcmp(u,"exit")==0)
                 {
                   fg_exit();
-                  exit(0);              
+                  exit(0);
                 }
-                else  
+                else
     if (strcmp(u,"echo")==0)
                 {
                   u=strtok(0,"\n");
-                  
-                  if (u!=0)              
+
+                  if (u!=0)
                       printf("%s\n",u);
                 }
-                else  
+                else
     if (strcmp(u,"use")==0)
                 {
                 u=strtok(0," ");
                 if (extension_override(devmgr_getdevicebyname(u),0)==-1)
                     {
-                        printf("Unable to install extension %s.\n",u);                
-                    };            
+                        printf("Unable to install extension %s.\n",u);
+                    };
                 }
-                else        
+                else
     if (strcmp(u,"off")==0)
                 dex32apm_off();
                 else
@@ -731,9 +727,9 @@ int console_execute(const char *str)
                     printf("umount failed.\n");
                  else
                    printf("%s umounted.\n",u);
-                } 
+                }
                   else
-                printf("missing parameter.\n");                    
+                printf("missing parameter.\n");
               }
               else
    if (strcmp(u,"mount")==0)
@@ -742,11 +738,11 @@ int console_execute(const char *str)
                fsname=strtok(0," ");
                devname=strtok(0," ");
                location=strtok(0," ");
-               
+
                if (vfs_mount_device(fsname,devname,location)==-1)
                  printf("mount not successful.\n");
                    else
-                 printf("mount successful.\n");  
+                 printf("mount successful.\n");
                //fat12_mount_root(root,floppy_deviceid);
                }
               else
@@ -769,7 +765,7 @@ int console_execute(const char *str)
                    if (mkdir(u)==-1)
                      printf("mkdir failed.\n");
                }
-                else       
+                else
     if (strcmp(u,"run")==0)
                {
                u=strtok(0," ");
@@ -778,26 +774,26 @@ int console_execute(const char *str)
                   if (script_load(u)==-1)
                       {
                          printf("console: Error loading script file.\n");
-                      };            
+                      };
                   }
                }
-               else    
+               else
     if (strcmp(u,"ls")==0||strcmp(u,"dir")==0)
                {
                int style=0, ordering = 0;
-               
+
                u=strtok(0," ");
-               
+
                if (u!=0)
                {
-                   do {           
+                   do {
                    if (strcmp(u,"-l")==0) style=1;
                    if (strcmp(u,"-oname")==0) ordering  = 0;
                    if (strcmp(u,"-osize")==0) ordering  = 1;
                    u=strtok(0," ");
                    } while (u!=0);
                };
-               
+
                console_ls(style, ordering);
                }
               else
@@ -827,7 +823,7 @@ int console_execute(const char *str)
               {
               char *u2,*u3;
                u2=strtok(0," ");
-               u3=strtok(0," ");               
+               u3=strtok(0," ");
                if (u2!=0&&u3!=0)
                   {
                      if (rename(u2,u3)) printf("file renamed.\n");
@@ -835,7 +831,7 @@ int console_execute(const char *str)
                          printf("error renaming file.\n");
                   }
                     else
-                printf("missing parameter.\n");    
+                printf("missing parameter.\n");
               }
               else
     if ( strcmp(u,"type")==0 || strcmp(u,"cat")==0 )
@@ -854,20 +850,20 @@ int console_execute(const char *str)
    if (strcmp(u,"copy")==0)
               {
               u=strtok(0," ");
-              if (u!=0) 
+              if (u!=0)
                    {
                       char *u2 = strtok(0," ");
-                      if (u2!=0) 
+                      if (u2!=0)
                           {
                             if (fcopy(u,u2) == -1)
                                 {
                                     printf("copy failed. Error while copying. Destination\n");
                                     printf("directory might not be present.\n");
                                 };
-                          };  
+                          };
                    };
               }
-              else              
+              else
    if (strcmp(u,"cd")==0)
               {
               u=strtok(0," ");
@@ -875,7 +871,7 @@ int console_execute(const char *str)
                if (!changedirectory(u))
                printf("cd: Cannot find directory\n");
                          } else
-                changedirectory(0); //go to working directory 
+                changedirectory(0); //go to working directory
               } else
    if (strcmp(u,"loadmod")==0)
               {
@@ -885,7 +881,7 @@ int console_execute(const char *str)
                if (loadDLL(u,str)==-1)
                   printf("Unable to load %s.\n",u);
                     else
-                  printf("Load module Successful.\n");  
+                  printf("Load module Successful.\n");
                 }
                   else
                printf("missing parameter.\n");
@@ -928,9 +924,9 @@ int console_execute(const char *str)
                     char *name  = strtok(u,"=");
                     char *value = strtok(0,"\n");
                     env_setenv(name,value,1);
-                 }; 
+                 };
              }
-             else         
+             else
     if (strcmp(u,"unload")==0)
            {
              u=strtok(0," ");
@@ -944,16 +940,16 @@ int console_execute(const char *str)
     if (strcmp(u,"demo_graphics")==0)
               {
                demo_graphics();
-              }    
+              }
               else
     if (strcmp(u,"history")==0)
                 {
                   // printf("Sup\n");
                   u=strtok(0," ");
-                 
+
                  if (u!=0)
                  {
-                     do {           
+                     do {
                      if (strcmp(u,"-t")==0) printHeadHistory(head);
                      if (strcmp(u,"-e")==0) printTailHistory(tail);
                      if (strcmp(u,"-h")==0) printHistoryHelp();
@@ -961,7 +957,7 @@ int console_execute(const char *str)
                      } while (u!=0);
                  }else
                  {
-                     printAllHistory(head);              
+                     printAllHistory(head);
                  };
                 }
                 else
@@ -973,26 +969,26 @@ int console_execute(const char *str)
                     {
                       devicename[i] = u[i+1];
                     };
-                    
+
                devicename[i] = 0;
-               
+
                printf("sending command to %s\n",devicename);
                devid = devmgr_finddevice(devicename);
-               
+
                if (devid != -1)
                {
                if (devmgr_sendmessage(devid,DEVMGR_MESSAGESTR,str)==-1)
                    printf("console: send_message() failed or not supported.\n");
                }
                   else
-               printf("console: cannot find device.\n");   
+               printf("console: cannot find device.\n");
 
              }
              else
              {
                if (u!=0)
                  {
-                  
+
                   if (!user_execp(u,0,str))
                       printf("console32: undefined console command.\n");
 
@@ -1005,9 +1001,9 @@ return 1;
 
 int console_new()
 {
-         //create a new console         
+         //create a new console
          char consolename[255];
-         sprintf(consolename,"dex32_console(%d)",console_first);    
+         sprintf(consolename,"dex32_console(%d)",console_first);
          return createkthread((void*)console,consolename,200000);
 };
 
@@ -1020,42 +1016,42 @@ void console_main()
     char last[256]="";
     char console_fmt[256]="%cdir% %% ";
     char console_prompt[256]="cmd >";
-    
-    DWORD ptr;
-    
-    myddl =Dex32CreateDDL();    
 
-    
+    DWORD ptr;
+
+    myddl =Dex32CreateDDL();
+
+
     Dex32SetProcessDDL(myddl,getprocessid());
     myfg = fg_register(myddl,getprocessid());
     fg_setforeground( myfg->id );
 
 
     clrscr();
-    
-    
-          
+
+
+
     strcpy(last,"");
-    
-    
+
+
     if (console_first == 0) script_load("/icsos/autoexec.bat");
-    console_first++;  
+    console_first++;
     startHistory(&head, &tail, &curr);            // creates LL and starts listing commands
     do {
     textcolor(MAGENTA);
     textbackground(BLACK);
     prompt_parser(console_fmt,console_prompt);
-    
+
     textcolor(LIGHTBLUE);
     printf("%s",console_prompt);
     textcolor(MAGENTA);
-    
+
     if (strcmp(s,"@@")!=0&&
         strcmp(s,"!!")!=0)
     strcpy(last,s);
-    
+
     getstring(s,myddl);
-   
+
     if (strcmp(s,"!")==0)
                sendtokeyb(last,&_q);
                else
@@ -1064,8 +1060,7 @@ void console_main()
                sendtokeyb(last,&_q);
                sendtokeyb("\r",&_q);
               }
-               else   
+               else
     console_execute(s);
     } while (1);
   ;};
-

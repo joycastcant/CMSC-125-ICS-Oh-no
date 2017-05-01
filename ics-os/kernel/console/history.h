@@ -4,6 +4,10 @@ typedef struct historyCommand {
     struct historyCommand * prev;
 } command;
 
+command * head;
+command * tail;
+command * curr;
+
 void startHistory(command ** head, command ** tail, command * curr) {
     // TODO: create head node points to first command
         // create head, tail, curr pointers
@@ -60,16 +64,25 @@ void printAllHistory(command * head) {
 }
 
 void printHeadHistory(command * head) {
-    // first ten
-    printf("All commands here head\n");
-    printf("%s\n", head->commandName);
+    // first ten commands
+    // printf("%s\n", head->commandName);
+    command * tempCurr = head;
+    int count = 0;
+    while ((tempCurr != NULL) && (count < 10)) {
+      printf("%s\n", tempCurr->commandName);
+      tempCurr = tempCurr->next;
+    }
 }
 
 void printTailHistory(command * tail) {
-    // last ten
-    printf("All commands here tail\n");
-    printf("%s\n", tail->commandName);
-}
+    // last ten commands
+    // printf("All commands here tail\n");
+    command * tempCurr = tail;
+    int count = 0;
+    while ((tempCurr != NULL) && (count < 10)) {
+      printf("%s\n", tempCurr->commandName);
+      tempCurr = tempCurr->prev;
+    }}
 
 void printHistoryHelp() {
     printf("Description\nThis command displays a list of commands that were called by the user.\nAnother feature is that it displays the most recent previous\nand next command when the keyboard arrows up or down is pressed, respectively.\nIt also allows the user to execute the chosen command when they press enter.\n\nOptions\n\t-h: displays help details in this command\n\t-t: displays the first ten commands that were called by the user\n\t-e: displays the last ten commands that were called by the user\n");
