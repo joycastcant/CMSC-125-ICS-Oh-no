@@ -1,3 +1,7 @@
+#define up_key 'a'
+#define down_key 'z'
+#define enter 'k'
+
 typedef struct historyCommand {
     char commandName[512];
     struct historyCommand * next;
@@ -19,8 +23,11 @@ void startHistory(command ** head, command ** tail, command * curr) {
     (* tail)->prev = NULL;
 };
 
-void appendHistory(command ** head, command ** tail, char * cmmand) {
+void appendHistory(command ** head, command ** tail, command ** curr, char * cmmand) {
     char temps[512];
+
+    if ((strcmp(cmmand, "move") == 0))
+      return;
 
     command * temp = * head;
     command * newcommand = (command *)malloc(sizeof(command));
@@ -38,24 +45,48 @@ void appendHistory(command ** head, command ** tail, char * cmmand) {
     newcommand->prev = temp;
 
     * tail = newcommand;
+    * curr = tail;
 }
 
-void copyHistory() {
-    // COPIES
+// moves and prints the curr command whenever it is called
+void moveCurr(int direction, command ** curr, char * tempComm) {
+      if (direction == 1) {
+        if ((*curr) != NULL){
+          printf("%s\n",(*curr)->commandName);
+          strcpy(tempComm, (*curr)->commandName);
+          (*curr) = (*curr)->prev;
+        }
+      } else if (direction == 0) {
+        if ((*curr) != NULL){
+          printf("%s\n",(*curr)->commandName);
+          strcpy(tempComm, (*curr)->commandName);
+          (*curr) = (*curr)->next;
+        }
+      }
 }
 
-char * movePointerHistory(int direction) {
-    // 1 == UP; 0 == DOWN
-    // if 1 -> prev
-    // if 0 -> next
+// moves the pointer depending on user's input
+// a = up ; z = down ; k = enter
+char * movePointerHistory(command ** curr) {
+  char * tempComm = "";
+  char direction;
 
+  while((direction != enter) && (!kb_ready())) {
+    direction = (char)getch();
+    if(direction == up_key){
+      moveCurr(1, curr, tempComm);
+    }
+    else if (direction == down_key){
+      moveCurr(0, curr, tempComm);
+    }
+  }
 
-    // note: catch yung dulo dulo
+  printf("exec: %s\n", tempComm);
+  return tempComm;
 }
-//console_execute(movePointerHistory(int d))
 
 void printAllHistory(command * head) {
-    // AAAALLL
+    // print all commands in history
     command * temp = head;
     while(temp != NULL){
         printf("%s \n", temp->commandName);
@@ -71,6 +102,7 @@ void printHeadHistory(command * head) {
     while ((tempCurr != NULL) && (count < 10)) {
       printf("%s\n", tempCurr->commandName);
       tempCurr = tempCurr->next;
+      count++;
     }
 }
 
@@ -82,6 +114,7 @@ void printTailHistory(command * tail) {
     while ((tempCurr != NULL) && (count < 10)) {
       printf("%s\n", tempCurr->commandName);
       tempCurr = tempCurr->prev;
+      count++;
     }}
 
 void printHistoryHelp() {

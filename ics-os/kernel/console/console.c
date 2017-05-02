@@ -27,6 +27,7 @@
 
 #include "console.h"
 #include "history.h"
+// #include "/../../sdk/dexsdk.h"
 
 
 /*A console mode get string function terminates
@@ -531,7 +532,7 @@ int console_execute(const char *str)
 
   if (u==0) return;
   //call appendHistory(u);
-  appendHistory(&head, &tail, tempo);
+  appendHistory(&head, &tail, &curr, tempo);
 
   command_length = strlen(u);
 
@@ -942,9 +943,15 @@ int console_execute(const char *str)
                demo_graphics();
               }
               else
+    if (strcmp(u,"move")==0)        // temporary command used to access history up and down
+              {
+                char * tempComm;
+                tempComm = movePointerHistory(curr);
+                console_execute(tempComm);
+              }
+              else
     if (strcmp(u,"history")==0)
                 {
-                  // printf("Sup\n");
                   u=strtok(0," ");
 
                  if (u!=0)
@@ -1033,7 +1040,6 @@ void console_main()
 
     strcpy(last,"");
 
-
     if (console_first == 0) script_load("/icsos/autoexec.bat");
     console_first++;
     startHistory(&head, &tail, &curr);            // creates LL and starts listing commands
@@ -1045,7 +1051,6 @@ void console_main()
     textcolor(LIGHTBLUE);
     printf("%s",console_prompt);
     textcolor(MAGENTA);
-
     if (strcmp(s,"@@")!=0&&
         strcmp(s,"!!")!=0)
     strcpy(last,s);
