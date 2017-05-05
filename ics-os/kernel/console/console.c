@@ -435,7 +435,7 @@ void console_ls(int style, int sortmethod)
         qsort(buffer,totalfiles,sizeof(vfs_node),console_ls_sortsize);
 
     textbackground(BLUE);
-    textcolor(MAGENTA);
+    textcolor(LIGHTRED);
 
     if (style==1)
         printf("%-25s %10s %14s %14s\n","Filename","Size(bytes)","Attribute","Date Modified");
@@ -457,7 +457,7 @@ void console_ls(int style, int sortmethod)
                     if (buffer[i].attb&FILE_OEXE)
                         textcolor(YELLOW);
                     else
-                    textcolor(MAGENTA);
+                    textcolor(LIGHTRED);
 
             strcpy(fname,buffer[i].name);
             fname[24]=0;
@@ -479,13 +479,13 @@ void console_ls(int style, int sortmethod)
                      if (buffer[i].attb&FILE_OEXE)
                         textcolor(YELLOW);
                     else
-                    textcolor(MAGENTA);
+                    textcolor(LIGHTRED);
 
             strcpy(fname,buffer[i].name);
             fname[24]=0;
             printf("%-25s ",fname);
 
-            textcolor(MAGENTA);
+            textcolor(LIGHTRED);
             printf("%10d %14s %14s\n",buffer[i].size,
             vfs_attbstr(&buffer[i],temp),datetostr(&buffer[i].date_modified,
                        mdatestr));
@@ -505,7 +505,7 @@ void console_ls(int style, int sortmethod)
         };
     };
 
-    textcolor(MAGENTA);
+    textcolor(LIGHTRED);
     printf("\nTotal Files: %d  Total Size: %d bytes\n", totalfiles, totalbytes);
     free(buffer);
 
@@ -1044,17 +1044,31 @@ void console_main()
     console_first++;
     startHistory(&head, &tail, &curr);            // creates LL and starts listing commands
     do {
-    textcolor(MAGENTA);
+    textcolor(LIGHTRED);
     textbackground(BLACK);
+
+    // history exec bug might be in here--
+    //                                   |
+    //                                   V
     prompt_parser(console_fmt,console_prompt);
 
-    textcolor(LIGHTBLUE);
-    printf("%s",console_prompt);
     textcolor(MAGENTA);
+    printf("%s",console_prompt);
+    textcolor(LIGHTRED);
     if (strcmp(s,"@@")!=0&&
         strcmp(s,"!!")!=0)
     strcpy(last,s);
 
+
+    ////
+    // temp pseudo code for back & forward
+      // while (kb_ready())              [no keys pressed yet]
+          // temp = getch();
+          // if (temp is arrow up || temp is arrow down)
+              // movePointerHistory ---> tempString
+          // else             [if char then it's a command ryt?]
+              // copy tempString --> s 
+    ////
     getstring(s,myddl);
 
     if (strcmp(s,"!")==0)

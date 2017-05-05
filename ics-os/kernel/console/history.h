@@ -51,18 +51,21 @@ void appendHistory(command ** head, command ** tail, command ** curr, char * cmm
 // moves and prints the curr command whenever it is called
 void moveCurr(int direction, command ** curr, char * tempComm) {
       if (direction == 1) {
-        if ((*curr) != NULL){
-          printf("%s\n",(*curr)->commandName);
-          strcpy(tempComm, (*curr)->commandName);
+        if ((*curr)->prev != NULL){
+          // printf("%s\n",(*curr)->commandName);
+          // strcpy(tempComm, (*curr)->commandName);
           (*curr) = (*curr)->prev;
         }
       } else if (direction == 0) {
-        if ((*curr) != NULL){
-          printf("%s\n",(*curr)->commandName);
-          strcpy(tempComm, (*curr)->commandName);
+        if ((*curr)->next != NULL){
+          // printf("%s\n",(*curr)->commandName);
+          // strcpy(tempComm, (*curr)->commandName);
           (*curr) = (*curr)->next;
         }
       }
+
+      printf("%s\n",(*curr)->commandName);
+      strcpy(tempComm, (*curr)->commandName);
 }
 
 // moves the pointer depending on user's input
@@ -80,8 +83,7 @@ char * movePointerHistory(command ** curr) {
       moveCurr(0, curr, tempComm);
     }
   }
-
-  printf("exec: %s\n", tempComm);
+  // printf("exec: %s\n", tempComm);
   return tempComm;
 }
 
