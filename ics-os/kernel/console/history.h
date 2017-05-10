@@ -73,10 +73,17 @@ char * movePointerHistory(command ** curr, char * prompt) {
     unsigned char direction = getch();
     if(direction == KEY_UP){
       moveCurr(1, curr, tempComm);
-      printf("%s%s\n", prompt, (*curr)->commandName);
+      textcolor(MAGENTA);
+      printf("\n%s", prompt);
+      textcolor(LIGHTRED);
+      printf("%s", (*curr)->commandName);
     }
     else if (direction == KEY_DOWN){
       moveCurr(0, curr, tempComm);
+      textcolor(MAGENTA);
+      printf("\n%s", prompt);
+      textcolor(LIGHTRED);
+      printf("%s", (*curr)->commandName);
     } else {
       return tempComm;
     }
