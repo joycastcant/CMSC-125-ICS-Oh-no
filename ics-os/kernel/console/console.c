@@ -943,13 +943,6 @@ int console_execute(const char *str)
                demo_graphics();
               }
               else
-    if (strcmp(u,"move")==0)        // temporary command used to access history up and down
-              {
-                char * tempComm;
-                tempComm = movePointerHistory(curr);
-                console_execute(tempComm);
-              }
-              else
     if (strcmp(u,"history")==0)
                 {
                   u=strtok(0," ");
@@ -1059,17 +1052,18 @@ void console_main()
         strcmp(s,"!!")!=0)
     strcpy(last,s);
 
+    ///
+    unsigned char c = getch();
+    if (c == KEY_UP || c == KEY_DOWN) {
+      char * tempComm;
+      tempComm = movePointerHistory(curr, console_prompt);
+      strcpy(s, tempComm);
+    }
+    else {
+      getstring(s,myddl);
+    }
+    ///
 
-    ////
-    // temp pseudo code for back & forward
-      // while (kb_ready())              [no keys pressed yet]
-          // temp = getch();
-          // if (temp is arrow up || temp is arrow down)
-              // movePointerHistory ---> tempString
-          // else             [if char then it's a command ryt?]
-              // copy tempString --> s 
-    ////
-    getstring(s,myddl);
 
     if (strcmp(s,"!")==0)
                sendtokeyb(last,&_q);

@@ -1,6 +1,8 @@
 #define up_key 'a'
 #define down_key 'z'
 #define enter 'k'
+#define KEY_UP  151
+#define KEY_DOWN 152
 
 typedef struct historyCommand {
     char commandName[512];
@@ -51,36 +53,32 @@ void appendHistory(command ** head, command ** tail, command ** curr, char * cmm
 // moves and prints the curr command whenever it is called
 void moveCurr(int direction, command ** curr, char * tempComm) {
       if (direction == 1) {
-        if ((*curr)->prev != NULL){
-          // printf("%s\n",(*curr)->commandName);
-          // strcpy(tempComm, (*curr)->commandName);
+        if ((*curr)->prev != NULL)
           (*curr) = (*curr)->prev;
-        }
       } else if (direction == 0) {
-        if ((*curr)->next != NULL){
-          // printf("%s\n",(*curr)->commandName);
-          // strcpy(tempComm, (*curr)->commandName);
+        if ((*curr)->next != NULL)
           (*curr) = (*curr)->next;
-        }
       }
 
-      printf("%s\n",(*curr)->commandName);
+      // printf("%s\n",(*curr)->commandName);
       strcpy(tempComm, (*curr)->commandName);
 }
 
 // moves the pointer depending on user's input
-// a = up ; z = down ; k = enter
-char * movePointerHistory(command ** curr) {
+char * movePointerHistory(command ** curr, char * prompt) {
   char * tempComm = "";
   char direction;
 
-  while((direction != enter) && (!kb_ready())) {
-    direction = (char)getch();
-    if(direction == up_key){
+  while(1) {
+    unsigned char direction = getch();
+    if(direction == KEY_UP){
       moveCurr(1, curr, tempComm);
+      printf("%s%s\n", prompt, (*curr)->commandName);
     }
-    else if (direction == down_key){
+    else if (direction == KEY_DOWN){
       moveCurr(0, curr, tempComm);
+    } else {
+      return tempComm;
     }
   }
   // printf("exec: %s\n", tempComm);
