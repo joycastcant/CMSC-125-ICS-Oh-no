@@ -32,13 +32,15 @@
 
 /*A console mode get string function terminates
 upon receving \r */
-void getstring(char *buf,DEX32_DDL_INFO *dev)
+void getstring(char ca,char *buf,DEX32_DDL_INFO *dev)
   {
     unsigned int i=0;
     char c;
     do
     {
-    c=getch();
+    if(i==0) c = ca;
+    else c=getch();
+
     if (c=='\r'||c=='\n'||c==0xa) break;
     if (c=='\b' || (unsigned char)c == 145)
        {
@@ -333,7 +335,8 @@ void prompt_parser(const char *promptstr,char *prompt)
   {
   int i,i2=0,i3=0;
   char command[10],temp[255];
-  strcpy(prompt,"");
+  char p[255]="";
+  strcpy(prompt,p);
   for (i=0;promptstr[i]&&i<255;i++)
     {
       if (promptstr[i]!='%')
@@ -1060,10 +1063,9 @@ void console_main()
       strcpy(s, tempComm);
     }
     else {
-      getstring(s,myddl);
+      getstring(c,s,myddl);
     }
     ///
-
 
     if (strcmp(s,"!")==0)
                sendtokeyb(last,&_q);

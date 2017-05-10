@@ -35,7 +35,7 @@
 
 int console_first = 0;
 void console_main();
-void getstring(char *buf,DEX32_DDL_INFO *dev);
+void getstring(char ca,char *buf,DEX32_DDL_INFO *dev);
 void meminfo();
 int delfile(char *fname);
 int user_fork();
