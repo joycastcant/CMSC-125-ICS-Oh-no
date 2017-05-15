@@ -1057,12 +1057,15 @@ void console_main()
 
     ///
     unsigned char c = getch();
-    if (c == KEY_UP || c == KEY_DOWN) {
+    if (c == KEY_UP) {
       char * tempComm;
-      tempComm = movePointerHistory(curr, console_prompt);
+      tempComm = movePointerHistory(curr, console_prompt, 1, myddl, s);
       strcpy(s, tempComm);
-    }
-    else {
+    } else if (c == KEY_DOWN) {
+      char * tempComm;
+      tempComm = movePointerHistory(curr, console_prompt, 0, myddl, s);
+      strcpy(s, tempComm);
+    } else {
       getstring(c,s,myddl);
     }
     ///
