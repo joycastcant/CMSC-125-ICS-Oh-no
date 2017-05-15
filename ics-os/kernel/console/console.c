@@ -1057,11 +1057,11 @@ void console_main()
 
     ///
     unsigned char c = getch();
-    if (c == KEY_UP) {
+    if (c == KEY_UP && head != NULL) {
       char * tempComm;
       tempComm = movePointerHistory(curr, console_prompt, 1, myddl, s);
       strcpy(s, tempComm);
-    } else if (c == KEY_DOWN) {
+    } else if (c == KEY_DOWN && head != NULL) {
       char * tempComm;
       tempComm = movePointerHistory(curr, console_prompt, 0, myddl, s);
       strcpy(s, tempComm);
