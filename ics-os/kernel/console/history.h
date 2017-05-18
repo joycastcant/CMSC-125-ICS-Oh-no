@@ -1,6 +1,3 @@
-#define up_key 'a'
-#define down_key 'z'
-#define enter 'k'
 #define KEY_UP  151
 #define KEY_DOWN 152
 
@@ -10,9 +7,11 @@ typedef struct historyCommand {
     struct historyCommand * prev;
 } command;
 
-command * head;
-command * tail;
-command * curr;
+command * head = NULL;
+command * tail = NULL;
+command * curr = NULL;
+
+int historyCommandFlag = 0;
 
 void startHistory(command ** head, command ** tail, command * curr) {
     // TODO: create head node points to first command
@@ -27,9 +26,6 @@ void startHistory(command ** head, command ** tail, command * curr) {
 
 void appendHistory(command ** head, command ** tail, command ** curr, char * cmmand) {
     char temps[512];
-
-    if ((strcmp(cmmand, "move") == 0))
-      return;
 
     command * temp = * head;
     command * newcommand = (command *)malloc(sizeof(command));
@@ -53,26 +49,79 @@ void appendHistory(command ** head, command ** tail, command ** curr, char * cmm
 // moves and prints the curr command whenever it is called
 void moveCurr(int direction, command ** curr, char * tempComm) {
       if (direction == 1) {
-        if ((*curr)->prev != NULL)
+        strcpy(tempComm, (*curr)->commandName);
+        if ((*curr)->prev != NULL) {
           (*curr) = (*curr)->prev;
+        }
       } else if (direction == 0) {
-        if ((*curr)->next != NULL)
+        strcpy(tempComm, (*curr)->commandName);
+        if ((*curr)->next != NULL){
           (*curr) = (*curr)->next;
+        }
       }
-
-      // printf("%s\n",(*curr)->commandName);
-      strcpy(tempComm, (*curr)->commandName);
 }
 
 // moves the pointer depending on user's input
-char * movePointerHistory(command ** curr, char * prompt) {
+char * movePointerHistory(command ** curr, char * prompt, int initial, DEX32_DDL_INFO *ddl, char * prevComm) {
   char * tempComm = "";
   char direction;
+  int i;
+  int prevLen = strlen(prevComm) + strlen(prompt);
+
+  if (initial == 1){
+    moveCurr(1, curr, tempComm);
+    for (i = 0; i < prevLen; i++) {
+      if (Dex32GetX(ddl)==0)
+        Dex32SetX(ddl,79);
+      else
+        Dex32SetX(ddl,Dex32GetX(ddl)-1);
+
+      Dex32PutChar(ddl,Dex32GetX(ddl),Dex32GetY(ddl),' ',Dex32GetAttb(ddl));
+      update_cursor(Dex32GetY(ddl),Dex32GetX(ddl));
+    }
+    Dex32SetY(ddl,Dex32GetY(ddl)-1);
+    update_cursor(Dex32GetY(ddl),Dex32GetX(ddl));
+
+    textcolor(MAGENTA);
+    printf("\n%s", prompt);
+    textcolor(LIGHTRED);
+    printf("%s", tempComm);
+  } else if (initial == 0) {
+    moveCurr(0, curr, tempComm);
+    for (i = 0; i < prevLen; i++) {
+      if (Dex32GetX(ddl)==0)
+        Dex32SetX(ddl,79);
+      else
+        Dex32SetX(ddl,Dex32GetX(ddl)-1);
+
+      Dex32PutChar(ddl,Dex32GetX(ddl),Dex32GetY(ddl),' ',Dex32GetAttb(ddl));
+      update_cursor(Dex32GetY(ddl),Dex32GetX(ddl));
+    }
+    Dex32SetY(ddl,Dex32GetY(ddl)-1);
+    update_cursor(Dex32GetY(ddl),Dex32GetX(ddl));
+
+    textcolor(MAGENTA);
+    printf("\n%s", prompt);
+    textcolor(LIGHTRED);
+    printf("%s ", tempComm);
+  }
 
   while(1) {
     unsigned char direction = getch();
     if(direction == KEY_UP){
       moveCurr(1, curr, tempComm);
+      for (i = 0; i < prevLen; i++) {
+        if (Dex32GetX(ddl)==0)
+          Dex32SetX(ddl,79);
+        else
+          Dex32SetX(ddl,Dex32GetX(ddl)-1);
+
+        Dex32PutChar(ddl,Dex32GetX(ddl),Dex32GetY(ddl),' ',Dex32GetAttb(ddl));
+        update_cursor(Dex32GetY(ddl),Dex32GetX(ddl));
+      }
+      Dex32SetY(ddl,Dex32GetY(ddl)-1);
+      update_cursor(Dex32GetY(ddl),Dex32GetX(ddl));
+
       textcolor(MAGENTA);
       printf("\n%s", prompt);
       textcolor(LIGHTRED);
@@ -80,6 +129,18 @@ char * movePointerHistory(command ** curr, char * prompt) {
     }
     else if (direction == KEY_DOWN){
       moveCurr(0, curr, tempComm);
+      for (i = 0; i < prevLen; i++) {
+        if (Dex32GetX(ddl)==0)
+          Dex32SetX(ddl,79);
+        else
+          Dex32SetX(ddl,Dex32GetX(ddl)-1);
+
+        Dex32PutChar(ddl,Dex32GetX(ddl),Dex32GetY(ddl),' ',Dex32GetAttb(ddl));
+        update_cursor(Dex32GetY(ddl),Dex32GetX(ddl));
+      }
+      Dex32SetY(ddl,Dex32GetY(ddl)-1);
+      update_cursor(Dex32GetY(ddl),Dex32GetX(ddl));
+
       textcolor(MAGENTA);
       printf("\n%s", prompt);
       textcolor(LIGHTRED);
@@ -88,8 +149,6 @@ char * movePointerHistory(command ** curr, char * prompt) {
       return tempComm;
     }
   }
-  // printf("exec: %s\n", tempComm);
-  return tempComm;
 }
 
 void printAllHistory(command * head) {
@@ -117,12 +176,20 @@ void printTailHistory(command * tail) {
     // last ten commands
     // printf("All commands here tail\n");
     command * tempCurr = tail;
-    int count = 0;
+    int count = 0, i = 0;
     while ((tempCurr != NULL) && (count < 10)) {
-      printf("%s\n", tempCurr->commandName);
+      // printf("%s\n", tempCurr->commandName);
       tempCurr = tempCurr->prev;
       count++;
-    }}
+    }
+
+    if (count < 10) tempCurr = head;
+    while (i < count) {
+      printf("%s\n", tempCurr->commandName);
+      tempCurr = tempCurr->next;
+      i++;
+    }
+  }
 
 void printHistoryHelp() {
     printf("Description\nThis command displays a list of commands that were called by the user.\nAnother feature is that it displays the most recent previous\nand next command when the keyboard arrows up or down is pressed, respectively.\nIt also allows the user to execute the chosen command when they press enter.\n\nOptions\n\t-h: displays help details in this command\n\t-t: displays the first ten commands that were called by the user\n\t-e: displays the last ten commands that were called by the user\n");
