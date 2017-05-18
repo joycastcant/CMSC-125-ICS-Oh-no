@@ -76,14 +76,14 @@ char * movePointerHistory(command ** curr, char * prompt) {
       textcolor(MAGENTA);
       printf("\n%s", prompt);
       textcolor(LIGHTRED);
-      printf("%s", (*curr)->commandName);
+      printf("%s\n", (*curr)->commandName);
     }
     else if (direction == KEY_DOWN){
       moveCurr(0, curr, tempComm);
       textcolor(MAGENTA);
       printf("\n%s", prompt);
       textcolor(LIGHTRED);
-      printf("%s", (*curr)->commandName);
+      printf("%s\n", (*curr)->commandName);
     } else {
       return tempComm;
     }

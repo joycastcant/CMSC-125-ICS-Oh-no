@@ -35,18 +35,23 @@ upon receving \r */
 void getstring(char ca,char *buf,DEX32_DDL_INFO *dev)
   {
     unsigned int i=0;
+    unsigned int fakeI = 0;
     char c;
     do
     {
-    if(i==0) c = ca;
+    if(i==0){
+      c = ca;
+      i++;
+    }  
     else c=getch();
 
     if (c=='\r'||c=='\n'||c==0xa) break;
     if (c=='\b' || (unsigned char)c == 145)
        {
-       if(i>0)
+       if(fakeI>0)
         {
         i--;
+        fakeI--;
 
         if (Dex32GetX(dev)==0)
              {
@@ -56,15 +61,16 @@ void getstring(char ca,char *buf,DEX32_DDL_INFO *dev)
              else
         Dex32SetX(dev,Dex32GetX(dev)-1);
         Dex32PutChar(dev,Dex32GetX(dev),Dex32GetY(dev),' ',Dex32GetAttb(dev));
-        };
+        }
        }
        else
        {
 
         if (i<256)  //maximum command line is only 255 characters
          {
-            Dex32PutChar(dev,Dex32GetX(dev),Dex32GetY(dev),buf[i]=c,Dex32GetAttb(dev));
+            Dex32PutChar(dev,Dex32GetX(dev),Dex32GetY(dev),buf[fakeI]=c,Dex32GetAttb(dev));
             i++;
+            fakeI++;
             Dex32SetX(dev,Dex32GetX(dev)+1);
             if (Dex32GetX(dev)>79) {Dex32SetX(dev,0);
             Dex32NextLn(dev);};
@@ -74,10 +80,9 @@ void getstring(char ca,char *buf,DEX32_DDL_INFO *dev)
      Dex32PutChar(dev,Dex32GetX(dev),Dex32GetY(dev),' ',Dex32GetAttb(dev));
      update_cursor(Dex32GetY(dev),Dex32GetX(dev));
     } while (c!='\r');
-
     Dex32SetX(dev,0);
     Dex32NextLn(dev);
-    buf[i]=0;
+    buf[fakeI]=0;
   };
 
 /*Show information about memory usage. This function is also useful
@@ -993,6 +998,7 @@ int console_execute(const char *str)
                  {
 
                   if (!user_execp(u,0,str))
+                      // printf("%s\n", u);
                       printf("console32: undefined console command.\n");
 
                  }
@@ -1059,13 +1065,15 @@ void console_main()
     unsigned char c = getch();
     if (c == KEY_UP || c == KEY_DOWN) {
       char * tempComm;
+      char tempu[512];
+
       tempComm = movePointerHistory(curr, console_prompt);
       strcpy(s, tempComm);
     }
     else {
+      char * st = "";
       getstring(c,s,myddl);
     }
-    ///
 
     if (strcmp(s,"!")==0)
                sendtokeyb(last,&_q);
