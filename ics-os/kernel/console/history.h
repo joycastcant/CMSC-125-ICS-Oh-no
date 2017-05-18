@@ -11,6 +11,8 @@ command * head = NULL;
 command * tail = NULL;
 command * curr = NULL;
 
+int historyCommandFlag = 0;
+
 void startHistory(command ** head, command ** tail, command * curr) {
     // TODO: create head node points to first command
         // create head, tail, curr pointers

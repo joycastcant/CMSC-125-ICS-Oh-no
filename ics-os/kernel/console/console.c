@@ -27,7 +27,6 @@
 
 #include "console.h"
 #include "history.h"
-// #include "/../../sdk/dexsdk.h"
 
 
 /*A console mode get string function terminates
@@ -336,7 +335,9 @@ void prompt_parser(const char *promptstr,char *prompt)
   int i,i2=0,i3=0;
   char command[10],temp[255];
   char p[255]="";
-  strcpy(prompt,p);
+  if (historyCommandFlag == 0) strcpy(prompt,p);
+  else return;
+
   for (i=0;promptstr[i]&&i<255;i++)
     {
       if (promptstr[i]!='%')
@@ -1061,10 +1062,12 @@ void console_main()
       char * tempComm;
       tempComm = movePointerHistory(curr, console_prompt, 1, myddl, s);
       strcpy(s, tempComm);
+      historyCommandFlag = 1;
     } else if (c == KEY_DOWN && head != NULL) {
       char * tempComm;
       tempComm = movePointerHistory(curr, console_prompt, 0, myddl, s);
       strcpy(s, tempComm);
+      historyCommandFlag = 1;
     } else {
       getstring(c,s,myddl);
     }
