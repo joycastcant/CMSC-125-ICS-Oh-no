@@ -16,3 +16,8 @@ This project is used at the <a href='http://www.ics.uplb.edu.ph'>Institute of Co
 Dont forget to check the <a href="http://github.com/srg-ics-uplb/ics-os/wiki">Wiki</a>.
 
 You can ask questions <a href="https://groups.google.com/forum/#!forum/ics-os">here</a>.
+
+
+
+# CMSC-125-ICS-Oh-no
+CMSC 125 Project: history console-based command
