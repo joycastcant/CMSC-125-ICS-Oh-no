@@ -1854,7 +1854,10 @@ char *getpath(vfs_node *ptr,char *s)
 char *getfullpath(vfs_node *node,char *s)
 {
     vfs_node *ptr=node;
-    strcpy(s,"");
+
+    char su[255] = "";  //done so history command
+    strcpy(s,su);           //won't overwrite path
+
     do {
         char temp[255];
         strcpy(temp,ptr->name);

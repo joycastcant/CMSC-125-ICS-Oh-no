@@ -34,14 +34,14 @@ upon receving \r */
 void getstring(char ca,char *buf,DEX32_DDL_INFO *dev)
   {
     unsigned int i=0;
-    unsigned int fakeI = 0;
+    unsigned int fakeI = 0;   //added to be the new character counter
     char c;
     do
     {
     if(i==0){
-      c = ca;
+      c = ca;   //the passed character becomes the first character of the command
       i++;
-    }  
+    } 
     else c=getch();
 
     if (c=='\r'||c=='\n'||c==0xa) break;
@@ -60,7 +60,7 @@ void getstring(char ca,char *buf,DEX32_DDL_INFO *dev)
              else
         Dex32SetX(dev,Dex32GetX(dev)-1);
         Dex32PutChar(dev,Dex32GetX(dev),Dex32GetY(dev),' ',Dex32GetAttb(dev));
-        }
+        };
        }
        else
        {
@@ -79,6 +79,7 @@ void getstring(char ca,char *buf,DEX32_DDL_INFO *dev)
      Dex32PutChar(dev,Dex32GetX(dev),Dex32GetY(dev),' ',Dex32GetAttb(dev));
      update_cursor(Dex32GetY(dev),Dex32GetX(dev));
     } while (c!='\r');
+
     Dex32SetX(dev,0);
     Dex32NextLn(dev);
     buf[fakeI]=0;
@@ -339,14 +340,12 @@ void prompt_parser(const char *promptstr,char *prompt)
   {
   int i,i2=0,i3=0;
   char command[10],temp[255];
-  char p[255]="";
-  if (historyCommandFlag == 0) strcpy(prompt,p);
-  else return;
+  char p[255]="";     //done so history command
+  strcpy(prompt,p);     //won't overwrite path
 
   for (i=0;promptstr[i]&&i<255;i++)
     {
       if (promptstr[i]!='%')
-          //add to the prompt
           {
               prompt[i2]=promptstr[i];
               i2++;
@@ -541,7 +540,7 @@ int console_execute(const char *str)
 
   if (u==0) return;
   //call appendHistory(u);
-  appendHistory(&head, &tail, &curr, tempo);
+  appendHistory(&head, &tail, &curr, tempo);  //appends the command to history linked list
 
   command_length = strlen(u);
 
@@ -999,7 +998,6 @@ int console_execute(const char *str)
                  {
 
                   if (!user_execp(u,0,str))
-                      // printf("%s\n", u);
                       printf("console32: undefined console command.\n");
 
                  }
@@ -1064,24 +1062,16 @@ void console_main()
 
     ///
     unsigned char c = getch();
-    if (c == KEY_UP && head != NULL) {
+    if (c == KEY_UP && head != NULL) {    //if c is arrow up
       char * tempComm;
-
       tempComm = movePointerHistory(curr, console_prompt, 1, myddl, s);
       strcpy(s, tempComm);
-    }
-    else {
-      /*tempComm = movePointerHistory(curr, console_prompt, 1, myddl, s);
-      strcpy(s, tempComm);
-      historyCommandFlag = 1;
-    } else if (c == KEY_DOWN && head != NULL) {
+    } else if (c == KEY_DOWN && head != NULL) {   //if c is arrow down
       char * tempComm;
       tempComm = movePointerHistory(curr, console_prompt, 0, myddl, s);
       strcpy(s, tempComm);
-      historyCommandFlag = 1;
-    } else {*/
-      getstring(c,s,myddl);
-    }
+    } else getstring(c,s,myddl); 
+    ///
 
     if (strcmp(s,"!")==0)
                sendtokeyb(last,&_q);

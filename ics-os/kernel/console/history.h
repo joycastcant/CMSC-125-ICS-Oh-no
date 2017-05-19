@@ -11,11 +11,8 @@ command * head = NULL;
 command * tail = NULL;
 command * curr = NULL;
 
-int historyCommandFlag = 0;
-
+//setups the linked list for history
 void startHistory(command ** head, command ** tail, command * curr) {
-    // TODO: create head node points to first command
-        // create head, tail, curr pointers
     * head = NULL;
     * tail = NULL;
     (* head)->next = NULL;
@@ -24,9 +21,8 @@ void startHistory(command ** head, command ** tail, command * curr) {
     (* tail)->prev = NULL;
 };
 
+//adds the command at the end of the linked list
 void appendHistory(command ** head, command ** tail, command ** curr, char * cmmand) {
-    char temps[512];
-
     command * temp = * head;
     command * newcommand = (command *)malloc(sizeof(command));
     strcpy(newcommand->commandName, cmmand);
@@ -125,7 +121,7 @@ char * movePointerHistory(command ** curr, char * prompt, int initial, DEX32_DDL
       textcolor(MAGENTA);
       printf("\n%s", prompt);
       textcolor(LIGHTRED);
-      printf("%s\n", (*curr)->commandName);
+      printf("%s", tempComm);
     }
     else if (direction == KEY_DOWN){
       moveCurr(0, curr, tempComm);
@@ -144,15 +140,16 @@ char * movePointerHistory(command ** curr, char * prompt, int initial, DEX32_DDL
       textcolor(MAGENTA);
       printf("\n%s", prompt);
       textcolor(LIGHTRED);
-      printf("%s\n", (*curr)->commandName);
-    } else {
+      printf("%s", tempComm);
+    } else if (direction == '\n'){
+      printf("\n");
       return tempComm;
     }
   }
 }
 
+// print all commands in history
 void printAllHistory(command * head) {
-    // print all commands in history
     command * temp = head;
     while(temp != NULL){
         printf("%s \n", temp->commandName);
@@ -160,9 +157,8 @@ void printAllHistory(command * head) {
     }
 }
 
+// first ten commands
 void printHeadHistory(command * head) {
-    // first ten commands
-    // printf("%s\n", head->commandName);
     command * tempCurr = head;
     int count = 0;
     while ((tempCurr != NULL) && (count < 10)) {
@@ -172,13 +168,11 @@ void printHeadHistory(command * head) {
     }
 }
 
+// last ten commands
 void printTailHistory(command * tail) {
-    // last ten commands
-    // printf("All commands here tail\n");
     command * tempCurr = tail;
     int count = 0, i = 0;
     while ((tempCurr != NULL) && (count < 10)) {
-      // printf("%s\n", tempCurr->commandName);
       tempCurr = tempCurr->prev;
       count++;
     }
